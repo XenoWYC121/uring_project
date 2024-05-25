@@ -1,3 +1,12 @@
+# CLion
+cmake-build-debug
+.idea
+cmake-build-release
+
+# VSCode
+.vscode
+build
+
 # Prerequisites
 *.d
 
