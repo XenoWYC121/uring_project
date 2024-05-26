@@ -28,6 +28,11 @@ namespace uring_project::coroutine
             }
         }
 
+        T get_value() const
+        {
+            return this->m_handler.promise().get_value();
+        }
+
         auto operator
         co_await() const noexcept
         {
