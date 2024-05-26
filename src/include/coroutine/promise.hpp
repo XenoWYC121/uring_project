@@ -11,19 +11,58 @@
 
 namespace uring_project::coroutine
 {
+    class prev_awaiter
+    {
+        using handler_type = std::coroutine_handle<>;
+    public:
+        explicit prev_awaiter(handler_type prev) : m_prev(prev) {}
+
+
+        bool await_ready() noexcept { return false; }
+
+
+        std::coroutine_handle<> await_suspend(std::coroutine_handle<> coroutine) const noexcept
+        {
+            if (this->m_prev && !this->m_prev.done())
+            {
+                return this->m_prev;
+            }
+            return std::noop_coroutine();
+        }
+
+        void await_resume() const noexcept {}
+
+    private:
+        handler_type m_prev;
+    };
+
     struct base_promise
     {
         std::suspend_always initial_suspend() { return {}; }
 
-        std::suspend_never final_suspend() noexcept { return {}; }
+        prev_awaiter final_suspend() noexcept { return prev_awaiter(this->m_perv_handler); }
 
         void unhandled_exception()
         {
             this->m_exception = std::current_exception();
         }
 
-    private:
+        const std::coroutine_handle<>& get_perv_handler() const
+        {
+            return m_perv_handler;
+        }
+
+        void set_perv_handler(const std::coroutine_handle<>& mPervHandler)
+        {
+            m_perv_handler = mPervHandler;
+        }
+
+        std::exception_ptr get_exception() { return this->m_exception; }
+
+    protected:
         std::exception_ptr m_exception;
+    private:
+        std::coroutine_handle<> m_perv_handler;
     };
 
     template<typename T>
@@ -33,7 +72,11 @@ namespace uring_project::coroutine
     public:
         T get_value() const
         {
-            return value;
+            if (this->m_exception)
+            {
+                std::rethrow_exception(this->m_exception);
+            }
+            return this->value;
         }
 
         void set_value(T t)
@@ -67,6 +110,14 @@ namespace uring_project::coroutine
         }
 
         void return_void() {}
+
+        void get_value()
+        {
+            if (this->m_exception)
+            {
+                std::rethrow_exception(this->m_exception);
+            }
+        }
 
     private:
         std::coroutine_handle<promise<void>> m_promise;

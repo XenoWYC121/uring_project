@@ -19,3 +19,38 @@ TEST(create_task, 1)
     auto c = value();
     c.resume();
 }
+
+TEST(create_task, 2)
+{
+    using namespace uring_project::coroutine;
+    auto value = []() -> task<void>
+    {
+        std::cout << "run in coroutine" << std::endl;
+        co_return;
+    };
+    auto task1 = value();
+    auto value2 = [&]() -> task<void>
+    {
+        std::cout << "in coroutine 2" << std::endl;
+        co_await task1;
+        std::cout << "in coroutine 2" << std::endl;
+    };
+    auto task2 = value2();
+    task2.resume();
+}
+
+
+TEST(create_task, 3)
+{
+    using namespace uring_project::coroutine;
+
+    auto value2 = [&]() -> task<void>
+    {
+        std::cout << "in coroutine 2" << std::endl;
+        co_await exit_awaiter();
+        std::cout << "in coroutine 2" << std::endl;
+    };
+    auto task2 = value2();
+    task2.resume();
+    task2.resume();
+}

@@ -6,6 +6,7 @@
 #define URING_PROJECT_TASK_HPP
 
 #include "promise.hpp"
+#include "awaiter.hpp"
 
 namespace uring_project::coroutine
 {
@@ -25,6 +26,12 @@ namespace uring_project::coroutine
             {
                 this->m_handler.resume();
             }
+        }
+
+        auto operator
+        co_await() const noexcept
+        {
+            return task_awaiter<T>(this->m_handler);
         }
 
     private:
