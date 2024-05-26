@@ -9,6 +9,12 @@
 
 #include <coroutine>
 #include <iostream>
+#include <utility>
+
+namespace uring_project::uring
+{
+    class uring_loop;
+}
 
 namespace uring_project::coroutine
 {
@@ -49,6 +55,29 @@ namespace uring_project::coroutine
         void await_suspend(std::coroutine_handle<> coroutine) const noexcept {}
 
         void await_resume() const {}
+    };
+
+    class async_open_at_awaiter
+    {
+        using promise_type = promise<int>;
+        using handler_type = std::coroutine_handle<promise_type>;
+    public:
+        async_open_at_awaiter(uring::uring_loop& loop, int dfd, std::string file_path, int oflag, int mode)
+                : m_loop(&loop), m_dfd(dfd), m_file_path(std::move(file_path)), m_oflag(oflag), m_mode(mode) {}
+
+        bool await_ready() const noexcept { return false; }
+
+        int await_resume() const { this->m_handler.promise().get_value(); }
+
+        void await_suspend(handler_type coroutine) noexcept;
+
+    private:
+        uring::uring_loop* m_loop{};
+        int m_dfd{};
+        std::string m_file_path{};
+        int m_oflag{};
+        int m_mode{};
+        handler_type m_handler{};
     };
 
 }

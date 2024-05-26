@@ -3,9 +3,11 @@
 //
 #include <gtest/gtest.h>
 #include <iostream>
-
+#include <unistd.h>
+#include <sys/fcntl.h>
 using namespace std;
 TEST(test, 01)
 {
     cout << "hello world!" << endl;
+    open()
 }
