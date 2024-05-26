@@ -4,7 +4,7 @@
 
 #include "uring_loop/uring_loop.h"
 #include "coroutine/promise.hpp"
-
+#include "coroutine/awaiter.hpp"
 #include <coroutine>
 #include <utility>
 
@@ -71,5 +71,10 @@ namespace uring_project::uring
         auto move_temp = std::move(obj);
         std::swap(*this, move_temp);
         return *this;
+    }
+
+    coroutine::async_open_at_awaiter uring_loop::async_open_at(int dfd, const std::string& file, int oflags, int modes)
+    {
+        return coroutine::async_open_at_awaiter(*this, dfd, file, oflags, modes);
     }
 }
