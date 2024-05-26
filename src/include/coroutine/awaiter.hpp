@@ -67,7 +67,7 @@ namespace uring_project::coroutine
 
         bool await_ready() const noexcept { return false; }
 
-        int await_resume() const { this->m_handler.promise().get_value(); }
+        int await_resume() const { return this->m_handler.promise().get_value(); }
 
         void await_suspend(handler_type coroutine) noexcept;
 

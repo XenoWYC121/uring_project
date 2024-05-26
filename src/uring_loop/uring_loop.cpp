@@ -73,8 +73,9 @@ namespace uring_project::uring
         return *this;
     }
 
-    coroutine::async_open_at_awaiter uring_loop::async_open_at(int dfd, const std::string& file, int oflags, int modes)
+    coroutine::task<int> uring_loop::async_open_at(int dfd, const std::string& file, int oflags, int modes)
     {
-        return coroutine::async_open_at_awaiter(*this, dfd, file, oflags, modes);
+        int res = co_await coroutine::async_open_at_awaiter(*this, dfd, file, oflags, modes);
+        co_return res;
     }
 }

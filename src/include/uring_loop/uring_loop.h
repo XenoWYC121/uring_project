@@ -5,6 +5,8 @@
 #ifndef URING_PROJECT_URING_LOOP_H
 #define URING_PROJECT_URING_LOOP_H
 
+#include "coroutine/task.hpp"
+
 #include <unistd.h>
 #include <liburing.h>
 
@@ -34,7 +36,7 @@ namespace uring_project::uring
         uring_loop& operator=(uring_loop&& obj) noexcept;
 
     public:
-        coroutine::async_open_at_awaiter async_open_at(int dfd, const std::string& file, int oflags, int modes);
+        coroutine::task<int> async_open_at(int dfd, const std::string& file, int oflags, int modes);
 
     public:
 

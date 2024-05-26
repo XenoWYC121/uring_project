@@ -17,6 +17,8 @@ namespace uring_project::coroutine
     public:
         explicit prev_awaiter(handler_type prev) : m_prev(prev) {}
 
+        ~prev_awaiter() = default;
+
 
         bool await_ready() noexcept { return false; }
 

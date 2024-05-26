@@ -5,6 +5,6 @@ file(GLOB_RECURSE COROUTINE_HEADERS
         ${PROJECT_SOURCE_DIR}/src/include/coroutine/*.hpp
 )
 
-add_library(coroutine STATIC awaiter.cpp ${COROUTINE_HEADERS})
+add_library(coroutine1 STATIC awaiter.cpp ${COROUTINE_HEADERS})
 
-target_include_directories(coroutine PUBLIC ${PROJECT_SOURCE_DIR}/src/include)
+target_include_directories(coroutine1 PUBLIC ${PROJECT_SOURCE_DIR}/src/include)

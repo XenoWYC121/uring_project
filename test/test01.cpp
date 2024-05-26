@@ -9,5 +9,4 @@ using namespace std;
 TEST(test, 01)
 {
     cout << "hello world!" << endl;
-    open()
 }
