@@ -15,7 +15,7 @@ namespace uring_project::coroutine
                 {
                     io_uring_prep_openat(entry, this->m_dfd, this->m_file_path.c_str(),
                                          this->m_oflag, this->m_mode);
-                    io_uring_sqe_set_data64(entry, reinterpret_cast<uint64_t>(new handler_type(this->m_handler)));
+                    io_uring_sqe_set_data64(entry, reinterpret_cast<uint64_t>(&this->m_handler));
                 });
     }
 }

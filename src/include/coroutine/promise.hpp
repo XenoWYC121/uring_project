@@ -15,15 +15,17 @@ namespace uring_project::coroutine
     {
         using handler_type = std::coroutine_handle<>;
     public:
+        prev_awaiter() = default;
+
         explicit prev_awaiter(handler_type prev) : m_prev(prev) {}
 
         ~prev_awaiter() = default;
 
 
-        bool await_ready() noexcept { return false; }
+        bool await_ready() noexcept { return !(this->m_prev && !this->m_prev.done()); }
 
 
-        std::coroutine_handle<> await_suspend(std::coroutine_handle<> coroutine) const noexcept
+        [[nodiscard]] std::coroutine_handle<> await_suspend(std::coroutine_handle<> coroutine) const noexcept
         {
             if (this->m_prev && !this->m_prev.done())
             {
@@ -35,7 +37,7 @@ namespace uring_project::coroutine
         void await_resume() const noexcept {}
 
     private:
-        handler_type m_prev;
+        handler_type m_prev{};
     };
 
     struct base_promise

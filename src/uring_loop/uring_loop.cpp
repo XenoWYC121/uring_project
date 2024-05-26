@@ -26,23 +26,27 @@ namespace uring_project::uring
 
     void uring_loop::run()
     {
-        io_uring_cqe* cqe{};
-        unsigned head;
-        unsigned counter = 0;
-        io_uring_for_each_cqe(&this->m_ring, head, cqe)
+        while (event_counter)
         {
-            auto ptr = reinterpret_cast<std::coroutine_handle<coroutine::promise<int>>*>(io_uring_cqe_get_data64(cqe));
-            if (ptr == nullptr)
+            io_uring_cqe* cqe{};
+            unsigned head;
+            unsigned counter = 0;
+            io_uring_wait_cqe(&this->m_ring, &cqe);
+            io_uring_for_each_cqe(&this->m_ring, head, cqe)
             {
-                throw std::runtime_error("unknown error");
+                auto ptr = reinterpret_cast<std::coroutine_handle<coroutine::promise<int>>*>(io_uring_cqe_get_data64(
+                        cqe));
+                if (ptr == nullptr)
+                {
+                    throw std::runtime_error("unknown error");
+                }
+                ptr->promise().set_value(cqe->res);
+                ptr->resume();
+                counter++;
+                this->event_counter--;
             }
-            std::coroutine_handle<coroutine::promise<int>> temp_obj = *ptr;
-            delete ptr;
-            temp_obj.promise().set_value(cqe->res);
-            temp_obj.resume();
-            counter++;
+            io_uring_cq_advance(&this->m_ring, counter);
         }
-        io_uring_cq_advance(&this->m_ring, counter);
     }
 
     void uring_loop::new_async_op(const std::function<void(io_uring_sqe*)>& op)
@@ -58,6 +62,7 @@ namespace uring_project::uring
         {
             throw std::system_error(errno, std::generic_category());
         }
+        this->event_counter++;
     }
 
     uring_loop::uring_loop(uring_loop&& obj) noexcept
@@ -73,9 +78,8 @@ namespace uring_project::uring
         return *this;
     }
 
-    coroutine::task<int> uring_loop::async_open_at(int dfd, const std::string& file, int oflags, int modes)
+    coroutine::async_open_at_awaiter uring_loop::async_open_at(int dfd, const std::string& file, int oflags, int modes)
     {
-        int res = co_await coroutine::async_open_at_awaiter(*this, dfd, file, oflags, modes);
-        co_return res;
+        return {*this, dfd, file, oflags, modes};
     }
 }

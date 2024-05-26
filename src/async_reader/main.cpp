@@ -14,7 +14,10 @@ uring_project::coroutine::task<int> v1(uring_project::uring::uring_loop& loop)
         throw std::system_error(errno, std::generic_category());
     }
     int res = 0;
-    //res = co_await loop.async_open_at(dfd, "hello.txt", O_CREAT | O_RDWR, 0644);
+    res = co_await loop.async_open_at(dfd, "hello.txt", O_CREAT | O_RDWR, 0644);
+    res = co_await loop.async_open_at(dfd, "hello2.txt", O_CREAT | O_RDWR, 0644);
+    res = co_await loop.async_open_at(dfd, "hello3.txt", O_CREAT | O_RDWR, 0644);
+    res = co_await loop.async_open_at(dfd, "hello4.txt", O_CREAT | O_RDWR, 0644);
     cout << "get res" << res << endl;
     if (res <= 0)
     {
@@ -22,7 +25,7 @@ uring_project::coroutine::task<int> v1(uring_project::uring::uring_loop& loop)
     }
     close(res);
     close(dfd);
-    co_return 10;
+    co_return res;
 }
 
 int main()
@@ -31,5 +34,5 @@ int main()
     uring::uring_loop loop(128);
     auto v = v1(loop);
     v.resume();
-    //loop.run();
+    loop.run();
 }

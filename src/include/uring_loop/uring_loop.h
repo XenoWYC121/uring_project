@@ -9,7 +9,7 @@
 
 #include <unistd.h>
 #include <liburing.h>
-
+#include <atomic>
 #include <functional>
 
 namespace uring_project::coroutine
@@ -36,7 +36,7 @@ namespace uring_project::uring
         uring_loop& operator=(uring_loop&& obj) noexcept;
 
     public:
-        coroutine::task<int> async_open_at(int dfd, const std::string& file, int oflags, int modes);
+        coroutine::async_open_at_awaiter async_open_at(int dfd, const std::string& file, int oflags, int modes);
 
     public:
 
@@ -46,6 +46,7 @@ namespace uring_project::uring
 
     private:
         io_uring m_ring{};
+        std::atomic<int> event_counter;
     };
 
 } // uring
