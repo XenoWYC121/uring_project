@@ -52,7 +52,7 @@ uring_project::coroutine::task<int> hello(uring_project::uring::uring_loop &loop
     }
     int res = 0;
     res = co_await loop.async_open_at(dfd, "hello4.txt", O_CREAT | O_RDWR, 0644);
-    cout << "get res" << res << endl;
+    cout << "get res " << res << endl;
     if (res <= 0)
     {
         close(res);
@@ -60,6 +60,14 @@ uring_project::coroutine::task<int> hello(uring_project::uring::uring_loop &loop
         co_return -1;
     }
     int fd = res;
+    res = co_await loop.async_write(fd, "hi fsy!", sizeof("hi fsy!"));
+    if (res <= 0)
+    {
+        close(fd);
+        close(dfd);
+        cerr << strerror(-res) << endl;
+        co_return -1;
+    }
     char buffer[20]{};
     res = co_await loop.async_read(fd, buffer, 20);
     if (res <= 0)

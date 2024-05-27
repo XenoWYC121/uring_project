@@ -102,9 +102,25 @@ namespace uring_project::coroutine
         handler_type m_handler{};
     };
 
-    class write_awaiter
+    class async_write_awaiter
     {
+        using promise_type = promise<int>;
+        using handler_type = std::coroutine_handle<promise_type>;
+    public:
+        async_write_awaiter(uring::uring_loop &loop, int fd, const char *buffer, size_t write_size)
+        : m_loop(&loop), m_fd(fd), m_buffer(buffer), m_write_size(write_size) {}
 
+        bool await_ready() const noexcept { return false; }
+
+        int await_resume() const { return this->m_handler.promise().get_value(); }
+
+        void await_suspend(handler_type coroutine) noexcept;
+    private:
+        uring::uring_loop *m_loop{};
+        int m_fd{};
+        const char *m_buffer{nullptr};
+        size_t m_write_size{0};
+        handler_type m_handler{};
     };
 }
 

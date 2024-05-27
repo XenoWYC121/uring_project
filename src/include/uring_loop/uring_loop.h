@@ -40,9 +40,11 @@ namespace uring_project::uring
 
         coroutine::async_read_awaiter async_read(int fd, char *buffer, size_t size);
 
+        coroutine::async_write_awaiter async_write(int fd, const char *buffer, size_t size);
+
     public:
 
-        void new_async_op(const std::function<void(io_uring_sqe * )> &op);
+        void new_async_op(const std::function<void(io_uring_sqe *)> &op);
 
         void run();
 

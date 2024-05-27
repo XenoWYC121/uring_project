@@ -34,7 +34,7 @@ namespace uring_project::uring
             io_uring_wait_cqe(&this->m_ring, &cqe);
             io_uring_for_each_cqe(&this->m_ring, head, cqe)
             {
-                auto ptr = reinterpret_cast<std::coroutine_handle <coroutine::promise<int>> *>(io_uring_cqe_get_data64(
+                auto ptr = reinterpret_cast<std::coroutine_handle<coroutine::promise<int>> *>(io_uring_cqe_get_data64(
                         cqe));
                 if (ptr == nullptr)
                 {
@@ -49,12 +49,7 @@ namespace uring_project::uring
         }
     }
 
-    coroutine::async_read_awaiter uring_loop::async_read(int fd, char *buffer, size_t size)
-    {
-        return {*this, fd, buffer, size};
-    }
-
-    void uring_loop::new_async_op(const std::function<void(io_uring_sqe * )> &op)
+    void uring_loop::new_async_op(const std::function<void(io_uring_sqe *)> &op)
     {
         auto sqe = io_uring_get_sqe(&this->m_ring);
         if (sqe == nullptr)
@@ -86,5 +81,15 @@ namespace uring_project::uring
     coroutine::async_open_at_awaiter uring_loop::async_open_at(int dfd, const std::string &file, int oflags, int modes)
     {
         return {*this, dfd, file, oflags, modes};
+    }
+
+    coroutine::async_write_awaiter uring_loop::async_write(int fd, const char *buffer, size_t size)
+    {
+        return {*this, fd, buffer, size};
+    }
+
+    coroutine::async_read_awaiter uring_loop::async_read(int fd, char *buffer, size_t size)
+    {
+        return {*this, fd, buffer, size};
     }
 }
