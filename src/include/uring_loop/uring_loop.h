@@ -27,20 +27,22 @@ namespace uring_project::uring
 
         ~uring_loop();
 
-        uring_loop(const uring_loop&) = delete;
+        uring_loop(const uring_loop &) = delete;
 
-        uring_loop(uring_loop&& obj) noexcept;
+        uring_loop(uring_loop &&obj) noexcept;
 
-        uring_loop& operator=(const uring_loop&) = delete;
+        uring_loop &operator=(const uring_loop &) = delete;
 
-        uring_loop& operator=(uring_loop&& obj) noexcept;
-
-    public:
-        coroutine::async_open_at_awaiter async_open_at(int dfd, const std::string& file, int oflags, int modes);
+        uring_loop &operator=(uring_loop &&obj) noexcept;
 
     public:
+        coroutine::async_open_at_awaiter async_open_at(int dfd, const std::string &file, int oflags, int modes);
 
-        void new_async_op(const std::function<void(io_uring_sqe*)>& op);
+        coroutine::async_read_awaiter async_read(int fd, char *buffer, size_t size);
+
+    public:
+
+        void new_async_op(const std::function<void(io_uring_sqe * )> &op);
 
         void run();
 

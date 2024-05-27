@@ -28,13 +28,13 @@ namespace uring_project::uring
     {
         while (event_counter)
         {
-            io_uring_cqe* cqe{};
+            io_uring_cqe *cqe{};
             unsigned head;
             unsigned counter = 0;
             io_uring_wait_cqe(&this->m_ring, &cqe);
             io_uring_for_each_cqe(&this->m_ring, head, cqe)
             {
-                auto ptr = reinterpret_cast<std::coroutine_handle<coroutine::promise<int>>*>(io_uring_cqe_get_data64(
+                auto ptr = reinterpret_cast<std::coroutine_handle <coroutine::promise<int>> *>(io_uring_cqe_get_data64(
                         cqe));
                 if (ptr == nullptr)
                 {
@@ -49,7 +49,12 @@ namespace uring_project::uring
         }
     }
 
-    void uring_loop::new_async_op(const std::function<void(io_uring_sqe*)>& op)
+    coroutine::async_read_awaiter uring_loop::async_read(int fd, char *buffer, size_t size)
+    {
+        return {*this, fd, buffer, size};
+    }
+
+    void uring_loop::new_async_op(const std::function<void(io_uring_sqe * )> &op)
     {
         auto sqe = io_uring_get_sqe(&this->m_ring);
         if (sqe == nullptr)
@@ -65,20 +70,20 @@ namespace uring_project::uring
         this->event_counter++;
     }
 
-    uring_loop::uring_loop(uring_loop&& obj) noexcept
+    uring_loop::uring_loop(uring_loop &&obj) noexcept
             : m_ring(std::exchange(obj.m_ring, {}))
     {
 
     }
 
-    uring_loop& uring_loop::operator=(uring_loop&& obj) noexcept
+    uring_loop &uring_loop::operator=(uring_loop &&obj) noexcept
     {
         auto move_temp = std::move(obj);
         std::swap(*this, move_temp);
         return *this;
     }
 
-    coroutine::async_open_at_awaiter uring_loop::async_open_at(int dfd, const std::string& file, int oflags, int modes)
+    coroutine::async_open_at_awaiter uring_loop::async_open_at(int dfd, const std::string &file, int oflags, int modes)
     {
         return {*this, dfd, file, oflags, modes};
     }
