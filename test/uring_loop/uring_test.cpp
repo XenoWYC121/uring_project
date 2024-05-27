@@ -100,3 +100,23 @@ TEST(uring_test, 4)
     call_in_func(loop);
     loop.run();
 }
+
+uring_project::coroutine::task<int> tt1()
+{
+    cout << "hi!" << endl;
+    co_return 0;
+}
+
+uring_project::coroutine::task<int> tt2()
+{
+    cout << "hello!" << endl;
+    int value = co_await tt1();
+    cout << "bye!" << endl;
+    co_return value;
+}
+
+TEST(uring_test, 5)
+{
+    auto v = tt2();
+    v.resume();
+}

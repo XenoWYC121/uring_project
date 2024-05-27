@@ -30,10 +30,10 @@ namespace uring_project::coroutine
         bool await_ready() const noexcept { return false; }
 
 
-        std::coroutine_handle <promise_type> await_suspend(std::coroutine_handle<> coroutine) const noexcept
+        std::coroutine_handle<promise_type> await_suspend(std::coroutine_handle<> coroutine) const noexcept
         {
             //mCoroutine.promise().mPrevious = coroutine;
-            this->m_handler.promise().set_perv_handler(coroutine);
+            this->m_handler.promise().m_prev_handler = coroutine;
             return this->m_handler;
         }
 
@@ -108,13 +108,14 @@ namespace uring_project::coroutine
         using handler_type = std::coroutine_handle<promise_type>;
     public:
         async_write_awaiter(uring::uring_loop &loop, int fd, const char *buffer, size_t write_size)
-        : m_loop(&loop), m_fd(fd), m_buffer(buffer), m_write_size(write_size) {}
+                : m_loop(&loop), m_fd(fd), m_buffer(buffer), m_write_size(write_size) {}
 
         bool await_ready() const noexcept { return false; }
 
         int await_resume() const { return this->m_handler.promise().get_value(); }
 
         void await_suspend(handler_type coroutine) noexcept;
+
     private:
         uring::uring_loop *m_loop{};
         int m_fd{};
