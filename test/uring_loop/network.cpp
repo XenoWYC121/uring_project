@@ -51,6 +51,9 @@ coroutine::task<int> net_test(uring::uring_loop &loop)
         perror("write error");
         co_return -1;
     }
+    array<char, 128> buf{};
+    res = co_await loop.async_read(conn_fd, &buf[0], 128);
+    cout.write(buf.data(), res);
     close(conn_fd);
     close(acc_fd);
     co_return 0;

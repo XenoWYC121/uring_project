@@ -68,6 +68,7 @@ namespace uring_project::coroutine
         }
         T m_value;
         unsigned long long key;
+        int target_fd{};
     };
 
 

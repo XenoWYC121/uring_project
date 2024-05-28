@@ -5,7 +5,7 @@ file(GLOB_RECURSE HEADERS
         ${PROJECT_SOURCE_DIR}/src/include/uring_loop/*.hpp
 )
 
-add_library(uring_loop STATIC uring_loop.cpp ${HEADERS})
+add_library(uring_loop STATIC uring_loop.cpp info_block.cpp ${HEADERS})
 
 target_link_libraries(uring_loop PUBLIC coroutine1  ${LIB_URING})
 

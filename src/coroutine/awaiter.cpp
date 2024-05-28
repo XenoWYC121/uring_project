@@ -3,19 +3,21 @@
 //
 #include "coroutine/awaiter.hpp"
 #include "uring_loop/uring_loop.h"
+#include "uring_loop/info_block.h"
 
 namespace uring_project::coroutine
 {
+    using namespace uring;
 
     void async_open_at_awaiter::await_suspend(handler_type coroutine) noexcept
     {
         this->m_handler = coroutine;
         this->m_loop->new_async_op(
-                [this](io_uring_sqe* entry) -> void
+                [this](io_uring_sqe *entry) -> void
                 {
                     io_uring_prep_openat(entry, this->m_dfd, this->m_file_path.c_str(),
                                          this->m_oflag, this->m_mode);
-                    io_uring_sqe_set_data64(entry, reinterpret_cast<uint64_t>(&this->m_handler));
+                    io_uring_sqe_set_data64(entry, info_block::create_info_block(this->m_handler, this->m_dfd));
                 });
     }
 
@@ -23,10 +25,10 @@ namespace uring_project::coroutine
     {
         this->m_handler = coroutine;
         this->m_loop->new_async_op(
-                [this](io_uring_sqe* entry) -> void
+                [this](io_uring_sqe *entry) -> void
                 {
                     io_uring_prep_read(entry, this->m_fd, this->m_buffer, this->m_read_size, 0);
-                    io_uring_sqe_set_data64(entry, reinterpret_cast<uint64_t>(&this->m_handler));
+                    io_uring_sqe_set_data64(entry, info_block::create_info_block(this->m_handler, this->m_fd));
                 });
     }
 
@@ -34,10 +36,10 @@ namespace uring_project::coroutine
     {
         this->m_handler = coroutine;
         this->m_loop->new_async_op(
-                [this](io_uring_sqe* entry) -> void
+                [this](io_uring_sqe *entry) -> void
                 {
                     io_uring_prep_write(entry, this->m_fd, this->m_buffer, this->m_write_size, 0);
-                    io_uring_sqe_set_data64(entry, reinterpret_cast<uint64_t>(&this->m_handler));
+                    io_uring_sqe_set_data64(entry, info_block::create_info_block(this->m_handler, this->m_fd));
                 });
     }
 
@@ -45,12 +47,12 @@ namespace uring_project::coroutine
     {
         this->m_handler = coroutine;
         this->m_loop->new_async_op(
-                [this](io_uring_sqe* entry)
+                [this](io_uring_sqe *entry)
                 {
                     io_uring_prep_accept(entry, this->m_accept_fd,
-                                         reinterpret_cast<sockaddr*>(this->m_sock_addr),
+                                         reinterpret_cast<sockaddr *>(this->m_sock_addr),
                                          this->m_socklen, 0);
-                    io_uring_sqe_set_data64(entry, reinterpret_cast<uint64_t>(&this->m_handler));
+                    io_uring_sqe_set_data64(entry, info_block::create_info_block(this->m_handler, this->m_accept_fd));
                 });
     }
 }
