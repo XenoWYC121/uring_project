@@ -26,25 +26,27 @@ namespace uring_project::uring
 
         ~uring_loop();
 
-        uring_loop(const uring_loop &) = delete;
+        uring_loop(const uring_loop&) = delete;
 
-        uring_loop(uring_loop &&obj) noexcept;
+        uring_loop(uring_loop&& obj) noexcept;
 
-        uring_loop &operator=(const uring_loop &) = delete;
+        uring_loop& operator=(const uring_loop&) = delete;
 
-        uring_loop &operator=(uring_loop &&obj) noexcept;
-
-    public:
-        coroutine::async_open_at_awaiter async_open_at(int dfd, const std::string &file, int oflags, int modes);
-
-        coroutine::async_read_awaiter async_read(int fd, char *buffer, size_t size);
-
-        coroutine::async_write_awaiter async_write(int fd, const char *buffer, size_t size);
+        uring_loop& operator=(uring_loop&& obj) noexcept;
 
     public:
-        void new_async_op(const std::function<void(io_uring_sqe *)> &op);
+        coroutine::async_open_at_awaiter async_open_at(int dfd, const std::string& file, int oflags, int modes);
 
-        void new_task(coroutine::task<int> &&task1);
+        coroutine::async_read_awaiter async_read(int fd, char* buffer, size_t size);
+
+        coroutine::async_write_awaiter async_write(int fd, const char* buffer, size_t size);
+
+        coroutine::async_accept_awaiter async_accept(int accept_fd, sockaddr_in& addr, socklen_t& socklen);
+
+    public:
+        void new_async_op(const std::function<void(io_uring_sqe*)>& op);
+
+        void new_task(coroutine::task<int>&& task1);
 
         void run();
 

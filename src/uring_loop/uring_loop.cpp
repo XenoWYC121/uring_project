@@ -110,4 +110,9 @@ namespace uring_project::uring
     {
         return {*this, fd, buffer, size};
     }
+
+    coroutine::async_accept_awaiter uring_loop::async_accept(int accept_fd, sockaddr_in& addr, socklen_t& socklen)
+    {
+        return {*this, accept_fd, addr, socklen};
+    }
 }
