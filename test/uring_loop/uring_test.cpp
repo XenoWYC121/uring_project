@@ -83,7 +83,7 @@ uring_project::coroutine::task<int> hello(uring_project::uring::uring_loop &loop
 void call_in_func(uring_project::uring::uring_loop &loop)
 {
     auto task = hello(loop);
-    task.resume();
+    loop.new_task(std::move(task));
 }
 
 TEST(uring_test, 3)
